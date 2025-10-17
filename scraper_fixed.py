@@ -1,4 +1,5 @@
 import undetected_chromedriver as uc
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -21,83 +22,73 @@ def create_driver():
     """Create and return an undetected Chrome instance"""
     try:
         options = uc.ChromeOptions()
+        
+        # Essential arguments for cloud deployment (Render, Heroku, etc.)
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--disable-gpu')
+        options.add_argument('--disable-web-security')
+        options.add_argument('--disable-features=VizDisplayCompositor')
+        options.add_argument('--headless')  # Run headless on cloud platforms
+        options.add_argument('--window-size=1920,1080')
+        
+        # Additional stability arguments
         options.add_argument('--disable-popup-blocking')
         options.add_argument('--disable-notifications')
         options.add_argument('--disable-blink-features=AutomationControlled')
-        options.add_argument('--disable-gpu')
-        options.add_argument('--remote-debugging-port=9222')
         options.add_argument('--disable-extensions')
         options.add_argument('--disable-plugins')
-        options.add_argument('--disable-images')
+        options.add_argument('--disable-images')  # Speed up loading
+        options.add_argument('--disable-javascript')  # May need to remove if JS is required
         
-        # Check if we're in a deployment environment (like Render)
-        if os.environ.get('RENDER') or os.environ.get('DYNO') or os.environ.get('VERCEL'):
-            # Headless mode for deployment
-            options.add_argument('--headless')
-            options.add_argument('--window-size=1920,1080')
-            
-            # Try to find Chrome binary in common deployment locations
-            chrome_binary_paths = [
+        # Set user agent to avoid detection
+        options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+        
+        # Check if we're running on a cloud platform
+        is_cloud = os.environ.get('RENDER', False) or os.environ.get('DYNO', False) or os.environ.get('VERCEL', False)
+        
+        if is_cloud:
+            # For cloud platforms, try to find Chrome binary
+            chrome_paths = [
                 '/usr/bin/google-chrome',
                 '/usr/bin/google-chrome-stable',
                 '/usr/bin/chromium-browser',
+                '/usr/bin/chromium',
                 '/opt/google/chrome/chrome',
-                '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+                '/usr/local/bin/chrome',
+                '/usr/local/bin/google-chrome'
             ]
             
-            chrome_binary = None
-            for path in chrome_binary_paths:
+            chrome_binary_path = None
+            for path in chrome_paths:
                 if os.path.exists(path):
-                    chrome_binary = path
+                    chrome_binary_path = path
+                    print(f"Found Chrome binary at: {path}")
                     break
             
-            if chrome_binary:
-                options.binary_location = chrome_binary
-        else:
-            # Local development
-            options.add_argument('--start-maximized')
+            if chrome_binary_path:
+                options.binary_location = chrome_binary_path
+            else:
+                print("Warning: Chrome binary not found, using default configuration")
         
-        # Create the driver with error handling for deployment
+        # Try to create undetected Chrome driver first
         try:
             driver = uc.Chrome(
                 options=options,
+                driver_executable_path=None,
+                browser_executable_path=None,
                 suppress_welcome=True,
-                use_subprocess=False  # Disable subprocess in deployment
+                use_subprocess=True,
+                version_main=None  # Let undetected-chromedriver auto-detect
             )
-        except Exception as chrome_error:
-            print(f"Failed to create Chrome driver with undetected-chromedriver: {chrome_error}")
-            # Fallback to regular selenium if undetected-chromedriver fails
-            try:
-                from selenium import webdriver
-                from selenium.webdriver.chrome.options import Options as ChromeOptions
-                
-                fallback_options = ChromeOptions()
-                fallback_options.add_argument('--no-sandbox')
-                fallback_options.add_argument('--disable-dev-shm-usage')
-                fallback_options.add_argument('--headless')
-                fallback_options.add_argument('--disable-gpu')
-                fallback_options.add_argument('--window-size=1920,1080')
-                
-                # Try to set binary location if available
-                chrome_binary_paths = [
-                    '/usr/bin/google-chrome',
-                    '/usr/bin/google-chrome-stable',
-                    '/usr/bin/chromium-browser',
-                    '/opt/google/chrome/chrome'
-                ]
-                
-                for path in chrome_binary_paths:
-                    if os.path.exists(path):
-                        fallback_options.binary_location = path
-                        break
-                
-                driver = webdriver.Chrome(options=fallback_options)
-                print("Successfully created fallback Chrome driver")
-            except Exception as fallback_error:
-                print(f"Fallback driver creation also failed: {fallback_error}")
-                return None
+            print("Successfully created undetected Chrome driver")
+        except Exception as uc_error:
+            print(f"Failed to create undetected Chrome driver: {uc_error}")
+            print("Falling back to regular Chrome driver...")
+            
+            # Fallback to regular Chrome driver
+            driver = webdriver.Chrome(options=options)
+            print("Successfully created regular Chrome driver")
         
         # Set window size explicitly
         driver.set_window_size(1920, 1080)

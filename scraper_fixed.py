@@ -22,20 +22,82 @@ def create_driver():
     try:
         options = uc.ChromeOptions()
         options.add_argument('--no-sandbox')
-        options.add_argument('--start-maximized')
+        options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-popup-blocking')
         options.add_argument('--disable-notifications')
-        options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_argument('--disable-gpu')
+        options.add_argument('--remote-debugging-port=9222')
+        options.add_argument('--disable-extensions')
+        options.add_argument('--disable-plugins')
+        options.add_argument('--disable-images')
         
-        # Create the driver with a longer timeout
-        driver = uc.Chrome(
-            options=options,
-            driver_executable_path=None,
-            browser_executable_path=None,
-            suppress_welcome=True,
-            use_subprocess=True
-        )
+        # Check if we're in a deployment environment (like Render)
+        if os.environ.get('RENDER') or os.environ.get('DYNO') or os.environ.get('VERCEL'):
+            # Headless mode for deployment
+            options.add_argument('--headless')
+            options.add_argument('--window-size=1920,1080')
+            
+            # Try to find Chrome binary in common deployment locations
+            chrome_binary_paths = [
+                '/usr/bin/google-chrome',
+                '/usr/bin/google-chrome-stable',
+                '/usr/bin/chromium-browser',
+                '/opt/google/chrome/chrome',
+                '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+            ]
+            
+            chrome_binary = None
+            for path in chrome_binary_paths:
+                if os.path.exists(path):
+                    chrome_binary = path
+                    break
+            
+            if chrome_binary:
+                options.binary_location = chrome_binary
+        else:
+            # Local development
+            options.add_argument('--start-maximized')
+        
+        # Create the driver with error handling for deployment
+        try:
+            driver = uc.Chrome(
+                options=options,
+                suppress_welcome=True,
+                use_subprocess=False  # Disable subprocess in deployment
+            )
+        except Exception as chrome_error:
+            print(f"Failed to create Chrome driver with undetected-chromedriver: {chrome_error}")
+            # Fallback to regular selenium if undetected-chromedriver fails
+            try:
+                from selenium import webdriver
+                from selenium.webdriver.chrome.options import Options as ChromeOptions
+                
+                fallback_options = ChromeOptions()
+                fallback_options.add_argument('--no-sandbox')
+                fallback_options.add_argument('--disable-dev-shm-usage')
+                fallback_options.add_argument('--headless')
+                fallback_options.add_argument('--disable-gpu')
+                fallback_options.add_argument('--window-size=1920,1080')
+                
+                # Try to set binary location if available
+                chrome_binary_paths = [
+                    '/usr/bin/google-chrome',
+                    '/usr/bin/google-chrome-stable',
+                    '/usr/bin/chromium-browser',
+                    '/opt/google/chrome/chrome'
+                ]
+                
+                for path in chrome_binary_paths:
+                    if os.path.exists(path):
+                        fallback_options.binary_location = path
+                        break
+                
+                driver = webdriver.Chrome(options=fallback_options)
+                print("Successfully created fallback Chrome driver")
+            except Exception as fallback_error:
+                print(f"Fallback driver creation also failed: {fallback_error}")
+                return None
         
         # Set window size explicitly
         driver.set_window_size(1920, 1080)

@@ -56,7 +56,9 @@ def create_driver():
                 '/usr/bin/chromium',
                 '/opt/google/chrome/chrome',
                 '/usr/local/bin/chrome',
-                '/usr/local/bin/google-chrome'
+                '/usr/local/bin/google-chrome',
+                '/usr/local/bin/google-chrome-stable',
+                '/usr/bin/google-chrome'
             ]
             
             chrome_binary_path = None

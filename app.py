@@ -44,8 +44,8 @@ app.add_middleware(
     secret_key=os.environ.get("SESSION_SECRET", "change-me-please"),
 )
 
-# Mount static files directory
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Mount static files directory - commented out as not needed
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Set up templates
 templates = Jinja2Templates(directory="templates")
@@ -300,10 +300,10 @@ def run_scraper(url, job_id, depth=1, wait_time=3, follow_pagination=False, incl
         update_progress(job_id, 10, "Starting the scraper...")
         
         # Ensure directory exists
-        os.makedirs("static/temp", exist_ok=True)
+        os.makedirs("temp", exist_ok=True)
         
         # Generate a unique filename
-        csv_path = f"static/temp/{job_id}.csv"
+        csv_path = f"temp/{job_id}.csv"
         
         # Update progress - connecting
         update_progress(job_id, 20, "Connecting to the website...")

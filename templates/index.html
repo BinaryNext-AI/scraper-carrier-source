@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Web Scraper Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --success-color: #4cc9f0;
+            --light-bg: #f8f9fa;
+            --dark-bg: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: #333;
+            padding-top: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+        }
+        
+        .main-container {
+            flex: 1;
+            padding: 40px 0;
+        }
+        
+        .app-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .app-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .app-header h1 {
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .app-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+        
+        .app-body {
+            padding: 30px;
+        }
+        
+        .form-container {
+            margin-bottom: 30px;
+        }
+        
+        .url-input-group {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .url-input-group input {
+            flex: 1;
+            border-radius: 8px 0 0 8px;
+            border: 2px solid #dee2e6;
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .url-input-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+        
+        .url-input-group button {
+            border-radius: 0 8px 8px 0;
+            padding: 12px 20px;
+            font-weight: 600;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .url-input-group button:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .options-container {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .options-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .options-title i {
+            margin-right: 10px;
+        }
+        
+        .options-content {
+            display: none;
+        }
+        
+        .status-area {
+            margin-top: 30px;
+            padding: 0;
+            border-radius: 8px;
+            display: none;
+            overflow: hidden;
+        }
+        
+        .status-header {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+        }
+        
+        .status-body {
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            width: 2rem;
+            height: 2rem;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+        
+        .result-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        .result-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+        }
+        
+        .result-body {
+            padding: 20px;
+        }
+        
+        .result-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .action-btn {
+            padding: 12px 25px;
+            font-weight: 600;
+        }
+        
+        .preview-table {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .footer {
+            background-color: var(--dark-bg);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-top: auto;
+        }
+        
+        .footer a {
+            color: var(--success-color);
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Dark mode toggle */
+        .dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 20px;
+            }
+            
+            .app-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .app-body {
+                padding: 20px;
+            }
+            
+            .url-input-group {
+                flex-direction: column;
+            }
+            
+            .url-input-group input {
+                border-radius: 8px;
+                margin-bottom: 10px;
+            }
+            
+            .url-input-group button {
+                border-radius: 8px;
+            }
+            
+            .stat-item {
+                min-width: 100%;
+            }
+        }
+        
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        
+        body.dark-mode .app-container {
+            background-color: #1e1e1e;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        body.dark-mode .options-container {
+            background-color: #2d2d2d;
+        }
+        
+        body.dark-mode .status-header,
+        body.dark-mode .result-header {
+            background-color: #2d2d2d;
+            border-color: #444;
+        }
+        
+        body.dark-mode .result-card {
+            border-color: #444;
+        }
+        
+        body.dark-mode .stat-item {
+            background-color: #2d2d2d;
+        }
+        
+        body.dark-mode .stat-label {
+            color: #aaa;
+        }
+        
+        body.dark-mode input,
+        body.dark-mode select {
+            background-color: #2d2d2d;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+
+        /* Range slider visibility tweaks (light + dark) */
+        .form-range { accent-color: var(--primary-color); }
+        .form-range:focus { outline: none; }
+        /* WebKit */
+        .form-range::-webkit-slider-thumb { background-color: var(--primary-color); border: none; }
+        .form-range::-webkit-slider-runnable-track { background-color: #dfe6ff; height: 6px; border-radius: 3px; }
+        body.dark-mode .form-range::-webkit-slider-runnable-track { background-color: #444; }
+        /* Firefox */
+        .form-range::-moz-range-thumb { background-color: var(--primary-color); border: none; }
+        .form-range::-moz-range-track { background-color: #dfe6ff; height: 6px; border-radius: 3px; }
+        body.dark-mode .form-range::-moz-range-track { background-color: #444; }
+        /* Edge/IE */
+        .form-range::-ms-thumb { background-color: var(--primary-color); border: none; }
+        .form-range::-ms-track { background: transparent; border-color: transparent; color: transparent; height: 6px; }
+        .form-range::-ms-fill-lower { background-color: #b8c7ff; }
+        .form-range::-ms-fill-upper { background-color: #dfe6ff; }
+        body.dark-mode .form-range::-ms-fill-lower { background-color: #555; }
+        body.dark-mode .form-range::-ms-fill-upper { background-color: #444; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-spider me-2"></i> WebScraper Pro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="docs-link">API Docs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="about-link">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="container">
+            <div class="app-container">
+                <div class="app-header">
+                    <button class="dark-mode-toggle" id="dark-mode-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <h1>Advanced Web Scraper</h1>
+                    <p>Extract data from any website and download as CSV</p>
+                </div>
+                
+                <div class="app-body">
+                    <div class="form-container">
+                        <form id="scrape-form">
+                            <div class="mb-4">
+                                <div class="options-container">
+                                    <div class="options-title">
+                                        <i class="fas fa-filter"></i> CarrierSource Filters
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Company Type</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="company_type" id="company_type_any" value="" checked>
+                                                <label class="form-check-label" for="company_type_any">Any</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="company_type" id="company_type_carrier" value="carrier">
+                                                <label class="form-check-label" for="company_type_carrier">Carrier</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="company_type" id="company_type_brokerage" value="brokerage">
+                                                <label class="form-check-label" for="company_type_brokerage">Brokerage</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Company Name</label>
+                                            <input id="company_name" class="form-control" placeholder="Optional">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Origin (City, State)</label>
+                                            <input id="origin" class="form-control" placeholder="e.g., Dallas, TX">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Destination (City, State)</label>
+                                            <input id="destination" class="form-control" placeholder="e.g., Phoenix, AZ">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Truck Type</label>
+                                            <div class="row row-cols-2 g-2" id="truck_type_group">
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Dry Van" id="truck_dryvan"><label class="form-check-label" for="truck_dryvan">Dry Van</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Reefer" id="truck_reefer"><label class="form-check-label" for="truck_reefer">Reefer</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Flatbed" id="truck_flatbed"><label class="form-check-label" for="truck_flatbed">Flatbed</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Power Only" id="truck_power"><label class="form-check-label" for="truck_power">Power Only</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Step Deck" id="truck_step"><label class="form-check-label" for="truck_step">Step Deck</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Conestoga" id="truck_conestoga"><label class="form-check-label" for="truck_conestoga">Conestoga</label></div></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Shipment Type</label>
+                                            <div class="row row-cols-2 g-2" id="shipment_type_group">
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Full Truckload" id="ship_ftl"><label class="form-check-label" for="ship_ftl">Full Truckload</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Less than Truckload" id="ship_ltl"><label class="form-check-label" for="ship_ltl">Less than Truckload</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Partial Truckload" id="ship_partial"><label class="form-check-label" for="ship_partial">Partial Truckload</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Parcel" id="ship_parcel"><label class="form-check-label" for="ship_parcel">Parcel</label></div></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label">Specialized Service</label>
+                                            <div class="row row-cols-2 row-cols-md-3 g-2" id="specialized_service_group">
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Cross-Border" id="svc_cross"><label class="form-check-label" for="svc_cross">Cross-Border</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Drayage" id="svc_drayage"><label class="form-check-label" for="svc_drayage">Drayage</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Hazardous Materials" id="svc_haz"><label class="form-check-label" for="svc_haz">Hazardous Materials</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Dedicated Fleet" id="svc_ded"><label class="form-check-label" for="svc_ded">Dedicated Fleet</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Last Mile" id="svc_lastmile"><label class="form-check-label" for="svc_lastmile">Last Mile</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Drop Trailer" id="svc_drop"><label class="form-check-label" for="svc_drop">Drop Trailer</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Consolidation" id="svc_consol"><label class="form-check-label" for="svc_consol">Consolidation</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Alcohol Insured" id="svc_alc"><label class="form-check-label" for="svc_alc">Alcohol Insured</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Cross-docking" id="svc_crossdock"><label class="form-check-label" for="svc_crossdock">Cross-docking</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Managed Transportation" id="svc_managed"><label class="form-check-label" for="svc_managed">Managed Transportation</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Lift Gate" id="svc_lift"><label class="form-check-label" for="svc_lift">Lift Gate</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Team Drivers" id="svc_team"><label class="form-check-label" for="svc_team">Team Drivers</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Heavy Haul" id="svc_heavy"><label class="form-check-label" for="svc_heavy">Heavy Haul</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Super Load" id="svc_super"><label class="form-check-label" for="svc_super">Super Load</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Same-Day" id="svc_sameday"><label class="form-check-label" for="svc_sameday">Same-Day</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="White-Glove" id="svc_whiteglove"><label class="form-check-label" for="svc_whiteglove">White-Glove</label></div></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label">Freight</label>
+                                            <div class="row row-cols-2 row-cols-md-3 g-2" id="freight_group">
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="General Freight" id="fr_gen"><label class="form-check-label" for="fr_gen">General Freight</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Household Goods" id="fr_house"><label class="form-check-label" for="fr_house">Household Goods</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Metal: Sheets, Coils, Rolls" id="fr_metal"><label class="form-check-label" for="fr_metal">Metal: Sheets, Coils, Rolls</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Motor Vehicles" id="fr_vehicles"><label class="form-check-label" for="fr_vehicles">Motor Vehicles</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Driveaway / Towaway" id="fr_drive"><label class="form-check-label" for="fr_drive">Driveaway / Towaway</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Logs, Poles, Beams, Lumber" id="fr_lumber"><label class="form-check-label" for="fr_lumber">Logs, Poles, Beams, Lumber</label></div></div>
+                                                <!-- Add the rest as needed for brevity -->
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Insurance Minimum</label>
+                                            <select id="insurance_minimum" class="form-select">
+                                                <option value="">Any</option>
+                                                <option>$500,000</option>
+                                                <option>$1,000,000</option>
+                                                <option>$1,500,000</option>
+                                                <option>$2,000,000</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Authority Maintained</label>
+                                            <select id="authority_maintained" class="form-select">
+                                                <option value="">Any</option>
+                                                <option>more than 30 days</option>
+                                                <option>more than 90 days</option>
+                                                <option>more than 6 months</option>
+                                                <option>more than 1 year</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Safety Rating</label>
+                                            <div class="row row-cols-2 g-2" id="safety_rating_group">
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Satisfactory" id="safe_sat"><label class="form-check-label" for="safe_sat">Satisfactory</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Conditional" id="safe_cond"><label class="form-check-label" for="safe_cond">Conditional</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Unsatisfactory" id="safe_unsat"><label class="form-check-label" for="safe_unsat">Unsatisfactory</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="None" id="safe_none"><label class="form-check-label" for="safe_none">None</label></div></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Operation</label>
+                                            <div class="row row-cols-2 g-2" id="operation_group">
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Interstate" id="op_inter"><label class="form-check-label" for="op_inter">Interstate</label></div></div>
+                                                <div class="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="Intrastate" id="op_intra"><label class="form-check-label" for="op_intra">Intrastate</label></div></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Fleet Size Range</label>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="flex-grow-1">
+                                                    <input type="range" class="form-range" min="0" max="1000" step="1" id="fleet_min" value="0">
+                                                    <small class="text-muted">Min: <span id="fleet_min_val">0</span></small>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <input type="range" class="form-range" min="0" max="1000" step="1" id="fleet_max" value="100">
+                                                    <small class="text-muted">Max: <span id="fleet_max_val">100</span></small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-grid d-md-flex gap-2">
+                                            <button type="button" id="generate-url" class="btn btn-outline-primary">
+                                                <i class="fas fa-link me-2"></i> Generate URL
+                                            </button>
+                                            <small class="text-muted align-self-center">Fills the URL field below</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="url" class="form-label fw-bold">Website URL:</label>
+                                <div class="url-input-group">
+                                    <input type="url" class="form-control" id="url" name="url" required 
+                                           placeholder="https://example.com/page-to-scrape">
+                                    <input type="number" class="form-control ms-2" id="pages" min="1" value="30" style="max-width: 120px;" aria-label="Pages to scrape">
+                                    <button type="submit" class="btn btn-primary" id="scrape-button">
+                                        <i class="fas fa-spider me-2"></i> Scrape Data
+                                    </button>
+                                </div>
+                                <small class="text-muted">Enter the full URL including http:// or https://</small>
+                                <small class="text-muted ms-2">Pages to scrape (default 30)</small>
+                            </div>
+                            
+                            <!-- Advanced Options removed -->
+                        </form>
+                    </div>
+                    
+                    <div id="status-area" class="status-area border">
+                        <div class="status-header">
+                            <i class="fas fa-info-circle me-2"></i> Scraping Status
+                        </div>
+                        
+                        <div class="status-body">
+                            <div id="in-progress" style="display: none;">
+                                <div class="d-flex align-items-center">
+                                    <div class="spinner-border loading-spinner text-primary" role="status"></div>
+                                    <div>
+                                        <h5 class="mb-1">Processing your request</h5>
+                                        <p class="text-muted mb-0" id="status-message">Scraping in progress...</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="progress-container">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Progress</span>
+                                        <span id="progress-percentage">0%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="success" style="display: none;">
+                                <div class="alert alert-success mb-4">
+                                    <h5 class="alert-heading">
+                                        <i class="fas fa-check-circle me-2"></i> Success!
+                                    </h5>
+                                    <p id="success-message" class="mb-0">Scraping completed successfully!</p>
+                                </div>
+                                
+                                <div class="d-grid mb-4">
+                                    <button type="button" class="btn btn-success action-btn" id="download-button">
+                                        <i class="fas fa-download me-2"></i> Download CSV
+                                    </button>
+                                </div>
+                                
+                                <!-- Email functionality removed -->
+                            </div>
+                            
+                            <div id="error" style="display: none;">
+                                <div class="alert alert-danger">
+                                    <h5 class="alert-heading">
+                                        <i class="fas fa-exclamation-triangle me-2"></i> Error
+                                    </h5>
+                                    <p id="error-message" class="mb-0">An error occurred during scraping.</p>
+                                </div>
+                                <div class="d-grid mt-3">
+                                    <button type="button" class="btn btn-outline-primary action-btn" id="retry-button">
+                                        <i class="fas fa-redo me-2"></i> Try Again
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for About -->
+    <div class="modal fade" id="aboutModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">About WebScraper Pro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>WebScraper Pro is an advanced web scraping tool that allows you to extract data from any website and download it as a CSV file.</p>
+                    <p>Key features:</p>
+                    <ul>
+                        <li>Fast and efficient scraping</li>
+                        <li>Support for pagination</li>
+                        <li>Multi-level scraping</li>
+                        <li>Automatic data cleaning</li>
+                        <li>CSV export</li>
+                    </ul>
+                    <p>Built with FastAPI, Python, and modern web technologies.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2023 WebScraper Pro | <a href="#" id="privacy-link">Privacy Policy</a> | <a href="#" id="terms-link">Terms of Service</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let currentJobId = null;
+        let currentEmailJobId = null;
+        let progressInterval = null;
+        let emailStatusInterval = null;
+        let progressValue = 0;
+        
+        // DOM elements
+        const scrapeForm = document.getElementById('scrape-form');
+        const scrapeButton = document.getElementById('scrape-button');
+        const statusArea = document.getElementById('status-area');
+        const inProgress = document.getElementById('in-progress');
+        const success = document.getElementById('success');
+        const error = document.getElementById('error');
+        const statusMessage = document.getElementById('status-message');
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercentage = document.getElementById('progress-percentage');
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+        const downloadButton = document.getElementById('download-button');
+        const retryButton = document.getElementById('retry-button');
+        const optionsToggle = document.getElementById('options-toggle');
+        const optionsContent = document.getElementById('options-content');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const aboutLink = document.getElementById('about-link');
+        const docsLink = document.getElementById('docs-link');
+        const emailForm = document.getElementById('email-form');
+        const sendEmailButton = document.getElementById('send-email-button');
+        const emailStatusArea = document.getElementById('email-status-area');
+        const emailSuccessArea = document.getElementById('email-success-area');
+        const emailErrorArea = document.getElementById('email-error-area');
+        
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form submission
+            scrapeForm.addEventListener('submit', handleFormSubmit);
+            document.getElementById('generate-url').addEventListener('click', handleGenerateUrl);
+            bindFleetRangeDisplays();
+            
+            // Download button
+            downloadButton.addEventListener('click', handleDownload);
+            
+            // Email form submission
+            emailForm.addEventListener('submit', handleEmailFormSubmit);
+            
+            // Retry button
+            retryButton.addEventListener('click', function() {
+                statusArea.style.display = 'none';
+                scrapeButton.disabled = false;
+            });
+            
+            // Options toggle
+            optionsToggle.addEventListener('click', function() {
+                optionsContent.style.display = optionsContent.style.display === 'block' ? 'none' : 'block';
+                optionsToggle.querySelector('.fa-chevron-down').classList.toggle('fa-rotate-180');
+            });
+            
+            // Dark mode toggle
+            darkModeToggle.addEventListener('click', toggleDarkMode);
+            
+            // Check for saved dark mode preference
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            
+            // About modal
+            aboutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                const aboutModal = new bootstrap.Modal(document.getElementById('aboutModal'));
+                aboutModal.show();
+            });
+            
+            // API docs link
+            docsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = '/docs';
+            });
+        });
+        
+        // Handle form submission
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const url = document.getElementById('url').value;
+            
+            // Reset UI
+            resetUI();
+            
+            // Show status area and progress
+            statusArea.style.display = 'block';
+            inProgress.style.display = 'block';
+            
+            // Disable button during scraping
+            scrapeButton.disabled = true;
+            
+            // Start fake progress
+            startProgressSimulation();
+            
+            // Send request to start scraping
+            fetch('/scrape', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'url': url,
+                    'total_pages': document.getElementById('pages').value || '30'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    currentJobId = data.job_id;
+                    pollJobStatus();
+                } else {
+                    showError(data.detail || 'Failed to start scraping job');
+                    stopProgressSimulation();
+                }
+            })
+            .catch(error => {
+                showError('Error starting scraping job: ' + error);
+                stopProgressSimulation();
+            });
+        }
+
+        // Build CarrierSource URL from filter dropdowns
+        function handleGenerateUrl() {
+            const formData = new URLSearchParams();
+            // single fields
+            const companyType = document.querySelector('input[name="company_type"]:checked')?.value || '';
+            if (companyType) formData.append('company_type', companyType);
+            const fields = ['company_name','origin','destination','fleet_min','fleet_max'];
+            fields.forEach(id => {
+                const v = document.getElementById(id).value;
+                if (v) formData.append(id, v);
+            });
+
+            // multi-select via checkboxes
+            collectCheckedValues('#truck_type_group input[type="checkbox"]').forEach(v => formData.append('truck_type', v));
+            collectCheckedValues('#shipment_type_group input[type="checkbox"]').forEach(v => formData.append('shipment_type', v));
+            collectCheckedValues('#specialized_service_group input[type="checkbox"]').forEach(v => formData.append('specialized_service', v));
+            collectCheckedValues('#freight_group input[type="checkbox"]').forEach(v => formData.append('freight', v));
+            collectCheckedValues('#safety_rating_group input[type="checkbox"]').forEach(v => formData.append('safety_rating', v));
+            collectCheckedValues('#operation_group input[type="checkbox"]').forEach(v => formData.append('operation', v));
+
+            // single-select dropdowns
+            const insurance = document.getElementById('insurance_minimum').value;
+            const authority = document.getElementById('authority_maintained').value;
+            if (insurance) formData.append('insurance_minimum', insurance);
+            if (authority) formData.append('authority_maintained', authority);
+
+            fetch('/generate-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+            .then(r => r.json())
+            .then(({ url }) => {
+                document.getElementById('url').value = url;
+            })
+            .catch(err => {
+                console.error('Failed to generate URL', err);
+            });
+        }
+
+        function collectCheckedValues(selector) {
+            return Array.from(document.querySelectorAll(selector))
+                .filter(el => el.checked)
+                .map(el => el.value);
+        }
+
+        function bindFleetRangeDisplays() {
+            const minEl = document.getElementById('fleet_min');
+            const maxEl = document.getElementById('fleet_max');
+            const minOut = document.getElementById('fleet_min_val');
+            const maxOut = document.getElementById('fleet_max_val');
+            const sync = () => {
+                const minVal = parseInt(minEl.value || '0', 10);
+                const maxVal = parseInt(maxEl.value || '0', 10);
+                // Prevent cross-over
+                if (minVal > maxVal) {
+                    if (document.activeElement === minEl) maxEl.value = minVal;
+                    else minEl.value = maxVal;
+                }
+                minOut.textContent = minEl.value;
+                maxOut.textContent = maxEl.value;
+            };
+            minEl.addEventListener('input', sync);
+            maxEl.addEventListener('input', sync);
+            sync();
+        }
+        
+        // Handle email form submission
+        function handleEmailFormSubmit(e) {
+            e.preventDefault();
+            
+            if (!currentJobId) {
+                showEmailError('No data available. Please scrape data first.');
+                return;
+            }
+            
+            // Get form values
+            const subject = document.getElementById('email-subject').value;
+            const body = document.getElementById('email-body').value;
+            
+            // Reset email UI
+            resetEmailUI();
+            
+            // Show email status area
+            emailStatusArea.style.display = 'block';
+            
+            // Disable button during sending
+            sendEmailButton.disabled = true;
+            sendEmailButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Sending...';
+            
+            // Send request to start sending emails
+            fetch(`/send-emails/${currentJobId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'subject': subject,
+                    'body': body
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    currentEmailJobId = data.email_job_id;
+                    pollEmailStatus();
+                } else {
+                    showEmailError(data.detail || 'Failed to start email job');
+                    resetEmailButton();
+                }
+            })
+            .catch(error => {
+                showEmailError('Error starting email job: ' + error);
+                resetEmailButton();
+            });
+        }
+        
+        // Poll email status
+        function pollEmailStatus() {
+            if (!currentJobId || !currentEmailJobId) return;
+            
+            fetch(`/email-status/${currentJobId}/${currentEmailJobId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Update status message
+                document.getElementById('email-status-message').textContent = data.message;
+                
+                // Update progress
+                if (data.total > 0) {
+                    const progress = (data.sent / data.total) * 100;
+                    document.getElementById('email-progress-bar').style.width = progress + '%';
+                    document.getElementById('email-sent-count').textContent = data.sent;
+                    document.getElementById('email-total-count').textContent = data.total;
+                }
+                
+                if (data.status === 'completed') {
+                    // Email sending completed successfully
+                    emailStatusArea.style.display = 'none';
+                    emailSuccessArea.style.display = 'block';
+                    document.getElementById('email-success-message').textContent = data.message;
+                    resetEmailButton();
+                } else if (data.status === 'error') {
+                    // Error occurred
+                    showEmailError(data.message);
+                    resetEmailButton();
+                } else if (data.status === 'in_progress') {
+                    // Still in progress, continue polling
+                    setTimeout(pollEmailStatus, 2000);
+                }
+            })
+            .catch(error => {
+                showEmailError('Error checking email status: ' + error);
+                resetEmailButton();
+            });
+        }
+        
+        // Poll job status
+        function pollJobStatus() {
+            if (!currentJobId) return;
+            
+            fetch(`/job_status/${currentJobId}`)
+            .then(response => response.json())
+            .then(data => {
+                statusMessage.textContent = data.message;
+                
+                if (data.status === 'ready') {
+                    // Scraping completed successfully
+                    stopProgressSimulation();
+                    progressBar.style.width = '100%';
+                    progressPercentage.textContent = '100%';
+                    
+                    // Delay to show 100% completion
+                    setTimeout(() => {
+                        inProgress.style.display = 'none';
+                        success.style.display = 'block';
+                        successMessage.textContent = data.message;
+                                // Fetch and render 10-row preview
+                                fetch(`/preview/${currentJobId}?limit=10`)
+                                  .then(r => r.json())
+                                  .then(renderPreview)
+                                  .catch(() => {});
+                    }, 500);
+                } else if (data.status === 'error') {
+                    // Error occurred
+                    stopProgressSimulation();
+                    showError(data.message);
+                } else if (data.status === 'in_progress') {
+                    // Still in progress, continue polling
+                    setTimeout(pollJobStatus, 2000);
+                }
+
+                function renderPreview(resp) {
+                    if (!resp || !resp.columns || !resp.data) return;
+                    const tableContainerId = 'preview-table-container';
+                    let container = document.getElementById(tableContainerId);
+                    if (!container) {
+                        container = document.createElement('div');
+                        container.id = tableContainerId;
+                        container.className = 'preview-table';
+                        document.querySelector('#success .result-body')?.prepend(container);
+                    }
+                    const cols = resp.columns;
+                    const rows = resp.data;
+                    const thead = '<thead><tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr></thead>';
+                    const tbody = '<tbody>' + rows.map(r => '<tr>' + cols.map(c => `<td>${r[c] ?? ''}</td>`).join('') + '</tr>').join('') + '</tbody>';
+                    container.innerHTML = `<div class="table-responsive"><table class="table table-sm table-striped">${thead}${tbody}</table></div>`;
+                }
+            })
+            .catch(error => {
+                showError('Error checking job status: ' + error);
+                stopProgressSimulation();
+            });
+        }
+        
+        // Handle download
+        function handleDownload() {
+            if (currentJobId) {
+                window.location.href = `/download/${currentJobId}`;
+            }
+        }
+        
+        // Show error
+        function showError(message) {
+            inProgress.style.display = 'none';
+            success.style.display = 'none';
+            error.style.display = 'block';
+            errorMessage.textContent = message;
+            scrapeButton.disabled = false;
+        }
+        
+        // Show email error
+        function showEmailError(message) {
+            emailStatusArea.style.display = 'none';
+            emailSuccessArea.style.display = 'none';
+            emailErrorArea.style.display = 'block';
+            document.getElementById('email-error-message').textContent = message;
+        }
+        
+        // Reset UI
+        function resetUI() {
+            stopProgressSimulation();
+            progressBar.style.width = '0%';
+            progressPercentage.textContent = '0%';
+            inProgress.style.display = 'none';
+            success.style.display = 'none';
+            error.style.display = 'none';
+        }
+        
+        // Reset email UI
+        function resetEmailUI() {
+            emailStatusArea.style.display = 'none';
+            emailSuccessArea.style.display = 'none';
+            emailErrorArea.style.display = 'none';
+            document.getElementById('email-progress-bar').style.width = '0%';
+            document.getElementById('email-sent-count').textContent = '0';
+            document.getElementById('email-total-count').textContent = '0';
+        }
+        
+        // Reset email button
+        function resetEmailButton() {
+            sendEmailButton.disabled = false;
+            sendEmailButton.innerHTML = '<i class="fas fa-paper-plane me-2"></i> Send Emails';
+        }
+        
+        // Start progress simulation
+        function startProgressSimulation() {
+            progressValue = 0;
+            progressInterval = setInterval(() => {
+                // Simulate progress with diminishing returns
+                if (progressValue < 90) {
+                    progressValue += (90 - progressValue) / 20;
+                    progressBar.style.width = progressValue + '%';
+                    progressPercentage.textContent = Math.round(progressValue) + '%';
+                }
+            }, 300);
+        }
+        
+        // Stop progress simulation
+        function stopProgressSimulation() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+        }
+        
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('darkMode', 'enabled');
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                localStorage.setItem('darkMode', 'disabled');
+                darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
